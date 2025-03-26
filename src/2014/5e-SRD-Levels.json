@@ -6587,7 +6587,7 @@
     "spellcasting": {
       "cantrips_known": 2,
       "spells_known": 4,
-      "spell_slots_level_1": 0,
+      "spell_slots_level_1": 2,
       "spell_slots_level_2": 2,
       "spell_slots_level_3": 0,
       "spell_slots_level_4": 0,
