@@ -1,0 +1,42 @@
+# Builds the project Docker image (see ./Dockerfile, a MongoDB image seeded with
+# the 5e database) for every commit pushed to the `masterai` branch and pushes it
+# to the GitHub Container Registry (ghcr.io).
+#
+# Reference: .github/workflows/ci.yml -> `container-release` job.
+
+name: MasterAI Docker Build
+
+on:
+  push:
+    branches: [masterai]
+
+jobs:
+  container-release:
+    name: Container Release
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          # Per-commit tag so every commit produces its own immutable image, plus a
+          # moving `masterai` tag pointing at the latest build of the branch.
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:masterai
+          labels: version=${{ github.sha }}
