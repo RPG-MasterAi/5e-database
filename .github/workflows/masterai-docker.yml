@@ -16,13 +16,16 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME: ${{ github.repository }}
     permissions:
       contents: read
       packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Compute lowercase image name
+        # GHCR requires the repository (image) name to be lowercase, while the
+        # GitHub repo slug may contain uppercase letters (e.g. RPG-MasterAi).
+        run: echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
